@@ -14,6 +14,9 @@ namespace MoveLib
         public const int ADDRESS_CONTENT_PTR = 0x18; // Address of pointer to content OR size of metadata, depending on how you look at it.
         public const int ADDRESS_FOOTER_PTR  = 0x93;
 
+        public const int OFFSET_BACVER_PTR = 0x0A;
+
+
         /// <summary>
         /// Removes the Uasset's metadata section (header) and returns the remainder.
         /// </summary>
