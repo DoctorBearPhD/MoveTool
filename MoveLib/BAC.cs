@@ -68,8 +68,7 @@ namespace MoveLib.BAC
         {
             BACFile file = new BACFile();
 
-            List<Move> moveList = new List<Move>();
-            List<HitboxEffects> hitboxEffectsList = new List<HitboxEffects>();
+            //List<HitboxEffects> hitboxEffectsList = new List<HitboxEffects>();
 
             byte[] fileBytes = File.ReadAllBytes(fileName); // reads all bytes from file into a byte array
 
@@ -113,7 +112,9 @@ namespace MoveLib.BAC
                     throw new Exception("Was at wrong position when trying to read from startOfMoveTable");
                 }
 
-                // Read list of addresses of each MoveList
+                #region Read MoveLists
+
+                // Read list of addresses of MoveLists
                 List<int> moveListAddresses = new List<int>();
 
                 for (int i = 0; i < file.MoveListCount; i++)
@@ -123,236 +124,29 @@ namespace MoveLib.BAC
 
                 file.MoveLists = new MoveList[file.MoveListCount]; // Use the metadata to make a new MoveList object
 
-                // Read MoveLists
                 for (int i = 0; i < moveListAddresses.Count; i++)
                 {
-                    // Read each Move
                     ReadMoveList(file, inFile, moveListAddresses, i);
                 }
 
+                #endregion
+
+                #region Read HitboxFxList
+
+                file.HitboxEffectses = new HitboxEffects[file.HitboxFxCount];
+
                 inFile.BaseStream.Seek(startOfHitboxEffects, SeekOrigin.Begin);
-                List<int> HitboxEffectAddresses = new List<int>();
+                // Get addresses of HitboxFxs
+                List<int> hitboxEffectAddresses = new List<int>();
 
                 for (int i = 0; i < file.HitboxFxCount; i++)
                 {
-                    HitboxEffectAddresses.Add(inFile.ReadInt32());
+                    hitboxEffectAddresses.Add(inFile.ReadInt32());
                 }
 
-                for (int i = 0; i < HitboxEffectAddresses.Count; i++)
-                {
-                    HitboxEffects thisHitboxEffects = new HitboxEffects();
-                    thisHitboxEffects.Index = i;
-
-                    int thisHitboxEffectAddress = HitboxEffectAddresses[i];
-
-                    if (thisHitboxEffectAddress == 0)
-                    {
-                        hitboxEffectsList.Add(thisHitboxEffects);
-                        continue;
-                    }
-
-                    Debug.WriteLine("HitboxEffects at pos: " + thisHitboxEffectAddress.ToString("X") + "  -  Index:" + i);
-
-                    for (int j = 0; j < 20; j++)
-                    {
-                        inFile.BaseStream.Seek(thisHitboxEffectAddress + (j * 4), SeekOrigin.Begin);
-
-                        int thisTypeAddress = inFile.ReadInt32() + thisHitboxEffectAddress;
-
-                        inFile.BaseStream.Seek(thisTypeAddress, SeekOrigin.Begin);
-
-                        HitboxEffect hitboxEffect = new HitboxEffect()
-                        {
-                            Type = inFile.ReadInt16(),
-                            Index = inFile.ReadInt16(),
-                            DamageType = inFile.ReadInt32(),
-                            Unused1 = inFile.ReadByte(),
-                            NumberOfType1 = inFile.ReadByte(),
-                            NumberOfType2 = inFile.ReadByte(),
-                            Unused2 = inFile.ReadByte(),
-                            Damage = inFile.ReadInt16(),
-                            Stun = inFile.ReadInt16(),
-                            Index9 = inFile.ReadInt32(),
-                            EXBuildAttacker = inFile.ReadInt16(),
-                            EXBuildDefender = inFile.ReadInt16(),
-                            Index12 = inFile.ReadInt32(), 
-                            HitStunFramesAttacker = inFile.ReadInt32(),
-                            HitStunFramesDefender = inFile.ReadInt16(),
-                            FuzzyEffect = inFile.ReadInt16(),
-                            RecoveryAnimationFramesDefender = inFile.ReadInt16(),
-                            Index17 = inFile.ReadInt16(),
-                            Index18 = inFile.ReadInt16(),
-                            Index19 = inFile.ReadInt16(),
-                            KnockBack = inFile.ReadSingle(),
-                            FallSpeed = inFile.ReadSingle(),
-                            Index22 = inFile.ReadInt32(),
-                            Index23 = inFile.ReadInt32(),
-                            Index24 = inFile.ReadInt32(),
-                            Index25 = inFile.ReadInt32(),
-                            OffsetToStartOfType1 = inFile.ReadInt32(),
-                            OffsetToStartOfType2 = inFile.ReadInt32()
-                        };
-   
-                        hitboxEffect.Type1s = new HitboxEffectSoundEffect[hitboxEffect.NumberOfType1];
-                        hitboxEffect.Type2s = new HitboxEffectVisualEffect[hitboxEffect.NumberOfType2];
-
-                        int startOfType1 = hitboxEffect.OffsetToStartOfType1 + thisTypeAddress;
-                        int startOfType2 = hitboxEffect.OffsetToStartOfType2 + thisTypeAddress;
-
-                        if (hitboxEffect.NumberOfType1 > 0)
-                        {
-                            inFile.BaseStream.Seek(startOfType1, SeekOrigin.Begin);
-
-                            for (int m = 0; m < hitboxEffect.NumberOfType1; m++)
-                            {
-                                HitboxEffectSoundEffect thisType1 = new HitboxEffectSoundEffect()
-                                {
-                                    Unknown1 = inFile.ReadInt16(),
-                                    SoundType = inFile.ReadInt16(),
-                                    Unknown3 = inFile.ReadInt32(),
-                                    Unknown4 = inFile.ReadInt32()
-                                };
-
-                                hitboxEffect.Type1s[m] = thisType1;
-                            }
-                        }
-
-                        if (hitboxEffect.NumberOfType2 > 0)
-                        {
-                            inFile.BaseStream.Seek(startOfType2, SeekOrigin.Begin);
-
-                            for (int m = 0; m < hitboxEffect.NumberOfType2; m++)
-                            {
-                                HitboxEffectVisualEffect thisForce = new HitboxEffectVisualEffect()
-                                {
-                                    EffectType1 = inFile.ReadInt32(),
-                                    EffectType2 = inFile.ReadInt16(),
-                                    EffectType3 = inFile.ReadInt16(),
-                                    Unknown4 = inFile.ReadInt16(),
-                                    EffectPosition = inFile.ReadInt16(),
-                                    Unknown6 = inFile.ReadInt32(),
-                                    Unknown7 = inFile.ReadInt32(),
-                                    Unknown8 = inFile.ReadInt32(),
-                                    Unknown9 = inFile.ReadInt32(),
-                                    Size = inFile.ReadSingle(),
-                                    Unknown11 = inFile.ReadInt32()
-                                };
-
-                                hitboxEffect.Type2s[m] = thisForce;
-                            }
-                        }
-
-                        Debug.WriteLine("TypeAddress: " + j + " - " + thisTypeAddress.ToString("X") + " RealType: " + hitboxEffect.Type + " Size: " /*+ (nextTypeAddress- thisTypeAddress).ToString("X")*/ + " Type1's: " + hitboxEffect.NumberOfType1 + " Type2's: " + hitboxEffect.NumberOfType2);
-
-                        switch (j)
-                        {
-                            case 0:
-                                {
-                                    thisHitboxEffects.HIT_STAND = hitboxEffect;
-                                    break;
-                                }
-                            case 1:
-                                {
-                                    thisHitboxEffects.HIT_CROUCH = hitboxEffect;
-                                    break;
-                                }
-                            case 2:
-                                {
-                                    thisHitboxEffects.HIT_AIR = hitboxEffect;
-                                    break;
-                                }
-                            case 3:
-                                {
-                                    thisHitboxEffects.HIT_UNKNOWN = hitboxEffect;
-                                    break;
-                                }
-                            case 4:
-                                {
-                                    thisHitboxEffects.HIT_UNKNOWN2 = hitboxEffect;
-                                    break;
-                                }
-                            case 5:
-                                {
-                                    thisHitboxEffects.GUARD_STAND = hitboxEffect;
-                                    break;
-                                }
-                            case 6:
-                                {
-                                    thisHitboxEffects.GUARD_CROUCH = hitboxEffect;
-                                    break;
-                                }
-                            case 7:
-                                {
-                                    thisHitboxEffects.GUARD_AIR = hitboxEffect;
-                                    break;
-                                }
-                            case 8:
-                                {
-                                    thisHitboxEffects.GUARD_UNKNOWN = hitboxEffect;
-                                    break;
-                                }
-                            case 9:
-                                {
-                                    thisHitboxEffects.GUARD_UNKNOWN2 = hitboxEffect;
-                                    break;
-                                }
-                            case 10:
-                                {
-                                    thisHitboxEffects.COUNTERHIT_STAND = hitboxEffect;
-                                    break;
-                                }
-                            case 11:
-                                {
-                                    thisHitboxEffects.COUNTERHIT_CROUCH = hitboxEffect;
-                                    break;
-                                }
-                            case 12:
-                                {
-                                    thisHitboxEffects.COUNTERHIT_AIR = hitboxEffect;
-                                    break;
-                                }
-                            case 13:
-                                {
-                                    thisHitboxEffects.COUNTERHIT_UNKNOWN = hitboxEffect;
-                                    break;
-                                }
-                            case 14:
-                                {
-                                    thisHitboxEffects.COUNTERHIT_UNKNOWN2 = hitboxEffect;
-                                    break;
-                                }
-                            case 15:
-                                {
-                                    thisHitboxEffects.UNKNOWN_STAND = hitboxEffect;
-                                    break;
-                                }
-                            case 16:
-                                {
-                                    thisHitboxEffects.UNKNOWN_CROUCH = hitboxEffect;
-                                    break;
-                                }
-                            case 17:
-                                {
-                                    thisHitboxEffects.UNKNOWN_AIR = hitboxEffect;
-                                    break;
-                                }
-                            case 18:
-                                {
-                                    thisHitboxEffects.UNKNOWN_UNKNOWN = hitboxEffect;
-                                    break;
-                                }
-                            case 19:
-                                {
-                                    thisHitboxEffects.UNKNOWN_UNKNOWN2 = hitboxEffect;
-                                    break;
-                                }
-                        }
-                    }
-
-                    hitboxEffectsList.Add(thisHitboxEffects);
-                }
+                ReadHitboxFxList(file, inFile, hitboxEffectAddresses);
                 
-                file.HitboxEffectses = hitboxEffectsList.ToArray();
+                #endregion
 
                 return file;
             }
@@ -2421,6 +2215,229 @@ namespace MoveLib.BAC
 
                 //moveList.Add(thisMove);
                 file.MoveLists[moveListIndex].Moves[j] = thisMove;
+            }
+        }
+
+        /// <summary>
+        /// Read and set HitboxFxList.
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="inFile"></param>
+        /// <param name="hitboxEffectAddresses"></param>
+        private static void ReadHitboxFxList(BACFile file, BinaryReader inFile, List<int> hitboxEffectAddresses)
+        {
+            for (int i = 0; i < hitboxEffectAddresses.Count; i++)
+            {
+                HitboxEffects thisHitboxEffects = new HitboxEffects();
+                thisHitboxEffects.Index = i;
+
+                int thisHitboxEffectAddress = hitboxEffectAddresses[i];
+
+                if (thisHitboxEffectAddress == 0)
+                {
+                    file.HitboxEffectses[i] = thisHitboxEffects;
+                    continue;
+                }
+
+                Debug.WriteLine("HitboxEffects at pos: " + thisHitboxEffectAddress.ToString("X") + "  -  Index:" + i);
+
+                for (int j = 0; j < 20; j++)
+                {
+                    inFile.BaseStream.Seek(thisHitboxEffectAddress + (j * 4), SeekOrigin.Begin);
+
+                    int thisTypeAddress = inFile.ReadInt32() + thisHitboxEffectAddress;
+
+                    inFile.BaseStream.Seek(thisTypeAddress, SeekOrigin.Begin);
+
+                    HitboxEffect hitboxEffect = new HitboxEffect()
+                    {
+                        Type = inFile.ReadInt16(),
+                        Index = inFile.ReadInt16(),
+                        DamageType = inFile.ReadInt32(),
+                        Unused1 = inFile.ReadByte(),
+                        NumberOfType1 = inFile.ReadByte(),
+                        NumberOfType2 = inFile.ReadByte(),
+                        Unused2 = inFile.ReadByte(),
+                        Damage = inFile.ReadInt16(),
+                        Stun = inFile.ReadInt16(),
+                        Index9 = inFile.ReadInt32(),
+                        EXBuildAttacker = inFile.ReadInt16(),
+                        EXBuildDefender = inFile.ReadInt16(),
+                        Index12 = inFile.ReadInt32(),
+                        HitStunFramesAttacker = inFile.ReadInt32(),
+                        HitStunFramesDefender = inFile.ReadInt16(),
+                        FuzzyEffect = inFile.ReadInt16(),
+                        RecoveryAnimationFramesDefender = inFile.ReadInt16(),
+                        Index17 = inFile.ReadInt16(),
+                        Index18 = inFile.ReadInt16(),
+                        Index19 = inFile.ReadInt16(),
+                        KnockBack = inFile.ReadSingle(),
+                        FallSpeed = inFile.ReadSingle(),
+                        Index22 = inFile.ReadInt32(),
+                        Index23 = inFile.ReadInt32(),
+                        Index24 = inFile.ReadInt32(),
+                        Index25 = inFile.ReadInt32(),
+                        OffsetToStartOfType1 = inFile.ReadInt32(),
+                        OffsetToStartOfType2 = inFile.ReadInt32()
+                    };
+
+                    hitboxEffect.Type1s = new HitboxEffectSoundEffect[hitboxEffect.NumberOfType1];
+                    hitboxEffect.Type2s = new HitboxEffectVisualEffect[hitboxEffect.NumberOfType2];
+
+                    int startOfType1 = hitboxEffect.OffsetToStartOfType1 + thisTypeAddress;
+                    int startOfType2 = hitboxEffect.OffsetToStartOfType2 + thisTypeAddress;
+
+                    if (hitboxEffect.NumberOfType1 > 0)
+                    {
+                        inFile.BaseStream.Seek(startOfType1, SeekOrigin.Begin);
+
+                        for (int m = 0; m < hitboxEffect.NumberOfType1; m++)
+                        {
+                            HitboxEffectSoundEffect thisType1 = new HitboxEffectSoundEffect()
+                            {
+                                Unknown1 = inFile.ReadInt16(),
+                                SoundType = inFile.ReadInt16(),
+                                Unknown3 = inFile.ReadInt32(),
+                                Unknown4 = inFile.ReadInt32()
+                            };
+
+                            hitboxEffect.Type1s[m] = thisType1;
+                        }
+                    }
+
+                    if (hitboxEffect.NumberOfType2 > 0)
+                    {
+                        inFile.BaseStream.Seek(startOfType2, SeekOrigin.Begin);
+
+                        for (int m = 0; m < hitboxEffect.NumberOfType2; m++)
+                        {
+                            HitboxEffectVisualEffect thisForce = new HitboxEffectVisualEffect()
+                            {
+                                EffectType1 = inFile.ReadInt32(),
+                                EffectType2 = inFile.ReadInt16(),
+                                EffectType3 = inFile.ReadInt16(),
+                                Unknown4 = inFile.ReadInt16(),
+                                EffectPosition = inFile.ReadInt16(),
+                                Unknown6 = inFile.ReadInt32(),
+                                Unknown7 = inFile.ReadInt32(),
+                                Unknown8 = inFile.ReadInt32(),
+                                Unknown9 = inFile.ReadInt32(),
+                                Size = inFile.ReadSingle(),
+                                Unknown11 = inFile.ReadInt32()
+                            };
+
+                            hitboxEffect.Type2s[m] = thisForce;
+                        }
+                    }
+
+                    Debug.WriteLine("TypeAddress: " + j + " - " + thisTypeAddress.ToString("X") + " RealType: " + hitboxEffect.Type + " Size: " /*+ (nextTypeAddress- thisTypeAddress).ToString("X")*/ + " Type1's: " + hitboxEffect.NumberOfType1 + " Type2's: " + hitboxEffect.NumberOfType2);
+
+                    switch (j)
+                    {
+                        case 0:
+                            {
+                                thisHitboxEffects.HIT_STAND = hitboxEffect;
+                                break;
+                            }
+                        case 1:
+                            {
+                                thisHitboxEffects.HIT_CROUCH = hitboxEffect;
+                                break;
+                            }
+                        case 2:
+                            {
+                                thisHitboxEffects.HIT_AIR = hitboxEffect;
+                                break;
+                            }
+                        case 3:
+                            {
+                                thisHitboxEffects.HIT_UNKNOWN = hitboxEffect;
+                                break;
+                            }
+                        case 4:
+                            {
+                                thisHitboxEffects.HIT_UNKNOWN2 = hitboxEffect;
+                                break;
+                            }
+                        case 5:
+                            {
+                                thisHitboxEffects.GUARD_STAND = hitboxEffect;
+                                break;
+                            }
+                        case 6:
+                            {
+                                thisHitboxEffects.GUARD_CROUCH = hitboxEffect;
+                                break;
+                            }
+                        case 7:
+                            {
+                                thisHitboxEffects.GUARD_AIR = hitboxEffect;
+                                break;
+                            }
+                        case 8:
+                            {
+                                thisHitboxEffects.GUARD_UNKNOWN = hitboxEffect;
+                                break;
+                            }
+                        case 9:
+                            {
+                                thisHitboxEffects.GUARD_UNKNOWN2 = hitboxEffect;
+                                break;
+                            }
+                        case 10:
+                            {
+                                thisHitboxEffects.COUNTERHIT_STAND = hitboxEffect;
+                                break;
+                            }
+                        case 11:
+                            {
+                                thisHitboxEffects.COUNTERHIT_CROUCH = hitboxEffect;
+                                break;
+                            }
+                        case 12:
+                            {
+                                thisHitboxEffects.COUNTERHIT_AIR = hitboxEffect;
+                                break;
+                            }
+                        case 13:
+                            {
+                                thisHitboxEffects.COUNTERHIT_UNKNOWN = hitboxEffect;
+                                break;
+                            }
+                        case 14:
+                            {
+                                thisHitboxEffects.COUNTERHIT_UNKNOWN2 = hitboxEffect;
+                                break;
+                            }
+                        case 15:
+                            {
+                                thisHitboxEffects.UNKNOWN_STAND = hitboxEffect;
+                                break;
+                            }
+                        case 16:
+                            {
+                                thisHitboxEffects.UNKNOWN_CROUCH = hitboxEffect;
+                                break;
+                            }
+                        case 17:
+                            {
+                                thisHitboxEffects.UNKNOWN_AIR = hitboxEffect;
+                                break;
+                            }
+                        case 18:
+                            {
+                                thisHitboxEffects.UNKNOWN_UNKNOWN = hitboxEffect;
+                                break;
+                            }
+                        case 19:
+                            {
+                                thisHitboxEffects.UNKNOWN_UNKNOWN2 = hitboxEffect;
+                                break;
+                            }
+                    }
+                }
+
+                file.HitboxEffectses[i] = thisHitboxEffects;
             }
         }
     }
