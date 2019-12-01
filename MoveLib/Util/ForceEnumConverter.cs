@@ -12,7 +12,7 @@ namespace MoveLib.Util
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            serializer.Serialize(writer, value);
+            serializer.Serialize(writer, (ForceEnum)value);
         }
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
