@@ -4,6 +4,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoveLib;
 using MoveLib.BAC;
+using MoveLib.BCH;
 using MoveLib.BCM;
 
 
@@ -121,8 +122,8 @@ namespace UnitTest
             foreach (var file in Directory.GetFiles(@"Originals", @"BCM*"))
             {
                 var originalBytes = File.ReadAllBytes(file);
-                var bcm = BCM.FromUassetFile(file);
-                BCM.ToUassetFile(bcm, @"Originals\BCM\testfile.uasset");
+                var bcm = BCMConverter.FromUassetFile(file);
+                BCMConverter.ToUassetFile(bcm, @"Originals\BCM\testfile.uasset");
                 var createdBytes = File.ReadAllBytes(@"Originals\BCM\testfile.uasset");
 
                 Assert.AreEqual(originalBytes.Length, createdBytes.Length);
@@ -142,8 +143,8 @@ namespace UnitTest
             foreach (var file in Directory.GetFiles(@"Originals\BCH"))
             {
                 var originalBytes = File.ReadAllBytes(file);
-                var bch = BCH.FromUassetFile(file);
-                BCH.ToUassetFile(bch, @"Originals\BCH\testfile.uasset");
+                var bch = BCHConverter.FromUassetFile(file);
+                BCHConverter.ToUassetFile(bch, @"Originals\BCH\testfile.uasset");
                 var createdBytes = File.ReadAllBytes(@"Originals\BCH\testfile.uasset");
 
                 Assert.AreEqual(originalBytes.Length, createdBytes.Length);

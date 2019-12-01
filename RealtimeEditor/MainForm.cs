@@ -332,7 +332,7 @@ namespace RealtimeEditor
 
             if (!success)
             {
-                success = BCM.JsonToBcm(fileName,
+                success = BCMConverter.JsonToBcm(fileName,
                     tempFileName);
             }
 

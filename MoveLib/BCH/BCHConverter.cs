@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace MoveLib
+namespace MoveLib.BCH
 {
-    public static class BCH
+    public static class BCHConverter
     {
         public static void BchToJson(string inFile, string outFile)
         {
-            BCHFile bch;
+            BCHObject bch;
 
             try
             {
@@ -33,11 +33,11 @@ namespace MoveLib
 
         public static bool JsonToBch(string inFile, string outFile)
         {
-            BCHFile bch;
+            BCHObject bch;
 
             try
             {
-                bch = JsonConvert.DeserializeObject<BCHFile>(File.ReadAllText(inFile));
+                bch = JsonConvert.DeserializeObject<BCHObject>(File.ReadAllText(inFile));
             }
             catch (Exception ex)
             {
@@ -56,9 +56,9 @@ namespace MoveLib
             return true;
         }
 
-        public static BCHFile FromUassetFile(string fileName)
+        public static BCHObject FromUassetFile(string fileName)
         {
-            BCHFile BCH = new BCHFile();
+            BCHObject BCH = new BCHObject();
 
             byte[] fileBytes = File.ReadAllBytes(fileName);
 
@@ -111,7 +111,7 @@ namespace MoveLib
             return BCH;
         }
 
-        public static void ToUassetFile(BCHFile file, string OutPutFileName)
+        public static void ToUassetFile(BCHObject file, string OutPutFileName)
         {
             byte[] outPutFileBytes;
 
@@ -196,7 +196,7 @@ namespace MoveLib
         }
     }
 
-    public class BCHFile
+    public class BCHObject
     {
         public Dictionary<string, int> BCH { get; set; }
         public byte[] RawUassetHeaderDontTouch { get; set; }

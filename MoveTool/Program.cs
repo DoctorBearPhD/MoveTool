@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using MoveLib;
 using MoveLib.BAC;
+using MoveLib.BCH;
 using MoveLib.BCM;
 
 namespace MoveTool
@@ -80,7 +81,7 @@ namespace MoveTool
                                 {
                                     Console.WriteLine("BCM file detected. Trying to do BCM to JSON.");
 
-                                    BCM.BcmToJson(path,
+                                    BCMConverter.BcmToJson(path,
                                         directory + fileNameWithoutExtension + ".json");
 
                                     Console.WriteLine("Done writing file: " + 
@@ -97,7 +98,7 @@ namespace MoveTool
                                 try
                                 {
                                     Console.WriteLine("BCH file detected. Trying to do BCH to JSON.");
-                                    BCH.BchToJson(path, 
+                                    BCHConverter.BchToJson(path, 
                                         directory + fileNameWithoutExtension + ".json");
                                     Console.WriteLine("Done writing file: " + 
                                                       directory + fileNameWithoutExtension + ".json");
@@ -131,14 +132,14 @@ namespace MoveTool
 
                         if (!success)
                         {
-                            success = BCM.JsonToBcm(args[0],
+                            success = BCMConverter.JsonToBcm(args[0],
                                 Path.GetDirectoryName(args[0]) + Separator +
                                 Path.GetFileNameWithoutExtension(args[0]) + ".uasset");
                         }
 
                         if (!success)
                         {
-                            success = BCH.JsonToBch(args[0],
+                            success = BCHConverter.JsonToBch(args[0],
                                 Path.GetDirectoryName(args[0]) + Separator +
                                 Path.GetFileNameWithoutExtension(args[0]) + ".uasset");
                         }
@@ -184,13 +185,13 @@ namespace MoveTool
 
                             case FileType.BCM:
                                 Console.WriteLine("BCM file detected. Trying to do BCM to JSON.");
-                                BCM.BcmToJson(inFile, outFile);
+                                BCMConverter.BcmToJson(inFile, outFile);
                                 Console.WriteLine("Done writing file: " + outFile);
                                 break;
 
                             case FileType.BCH:
                                 Console.WriteLine("BCH file detected. Trying to do BCH to JSON.");
-                                BCH.BchToJson(inFile, outFile);
+                                BCHConverter.BchToJson(inFile, outFile);
                                 Console.WriteLine("Done writing file: " + outFile);
                                 break;
 
@@ -213,12 +214,12 @@ namespace MoveTool
 
                         if (!success)
                         {
-                            success = BCM.JsonToBcm(inFile, outFile);
+                            success = BCMConverter.JsonToBcm(inFile, outFile);
                         }
 
                         if (!success)
                         {
-                            success = BCH.JsonToBch(inFile, outFile);
+                            success = BCHConverter.JsonToBch(inFile, outFile);
                         }
 
                         if (!success)

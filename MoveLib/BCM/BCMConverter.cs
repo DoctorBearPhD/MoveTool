@@ -4,15 +4,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoveLib.BCM.Types;
 using Newtonsoft.Json;
 
 namespace MoveLib.BCM
 {
-    public static class BCM
+    public static class BCMConverter
     {
         public static void BcmToJson(string inFile, string outFile)
         {
-            BCMFile bcm;
+            BCMObject bcm;
 
             try
             {
@@ -33,11 +34,11 @@ namespace MoveLib.BCM
 
         public static bool JsonToBcm(string inFile, string outFile)
         {
-            BCMFile bcm;
+            BCMObject bcm;
 
             try
             {
-                bcm = JsonConvert.DeserializeObject<BCMFile>(File.ReadAllText(inFile));
+                bcm = JsonConvert.DeserializeObject<BCMObject>(File.ReadAllText(inFile));
             }
             catch (Exception ex)
             {
@@ -58,17 +59,17 @@ namespace MoveLib.BCM
             return true;
         }
 
-        public static BCMFile FromUassetFile(string fileName)
+        public static BCMObject FromUassetFile(string fileName)
         {
             byte[] fileBytes = File.ReadAllBytes(fileName);
 
             byte[] UassetHeaderBytes = Common.GetUassetHeader(fileBytes);
             fileBytes = Common.RemoveUassetHeader(fileBytes);
 
-           List<Move> MoveList = new List<Move>();
-           List<CancelList> CancelLists = new List<CancelList>();
-           List<Input> InputList = new List<Input>();
-           List<Charge> ChargeList = new List<Charge>(); 
+            List<Move> MoveList = new List<Move>();
+            List<CancelList> CancelLists = new List<CancelList>();
+            List<Input> InputList = new List<Input>();
+            List<Charge> ChargeList = new List<Charge>();
 
             Debug.WriteLine("READING");
             using (var ms = new MemoryStream(fileBytes))
@@ -196,7 +197,7 @@ namespace MoveLib.BCM
                             parts.Add(thisPart);
                         }
 
-                        for (int j = 0; j < 16-partCount; j++) //There can be up to 16 parts, but even if they are empty they are still there, only filled with 0x00
+                        for (int j = 0; j < 16 - partCount; j++) //There can be up to 16 parts, but even if they are empty they are still there, only filled with 0x00
                         {
                             var unused = inFile.ReadBytes(16);
                             foreach (var b in unused)
@@ -213,13 +214,13 @@ namespace MoveLib.BCM
                     }
 
                     thisInput.InputEntries = entries.ToArray();
-                
+
                     thisInput.Index = i;
                     InputList.Add(thisInput);
                     Debug.WriteLine("Created input with index: " + i);
                 }
 
-                for (int i = 0; i < MoveCount*4; i+=0x4)
+                for (int i = 0; i < MoveCount * 4; i += 0x4)
                 {
                     long thisMovePosition = startOfMoves + i;
                     long thisNamePosition = startOfNames + i;
@@ -227,7 +228,7 @@ namespace MoveLib.BCM
                     inFile.BaseStream.Seek(thisNamePosition, SeekOrigin.Begin);
                     int NameAddress = inFile.ReadInt32();
                     string Name = GetName(NameAddress, inFile);
-                   
+
                     inFile.BaseStream.Seek(thisMovePosition, SeekOrigin.Begin);
                     int offset = inFile.ReadInt32();
                     Debug.WriteLine("Adding move at: " + offset.ToString("X"));
@@ -261,7 +262,7 @@ namespace MoveLib.BCM
                     Move thisMove = new Move()
                     {
                         Name = Name,
-                        Index = (short)(i == 0 ? 0 : (i / 4)), 
+                        Index = (short)(i == 0 ? 0 : (i / 4)),
                         Input = input,
                         InputFlags = inputFlags,
                         PositionRestriction = restrict,
@@ -276,7 +277,7 @@ namespace MoveLib.BCM
                         Unknown9 = unknown9,
                         Unknown10 = unknown10,
                         Unknown11 = unknown11,
-                        MeterRequirement =  (short)MeterRequirement,
+                        MeterRequirement = (short)MeterRequirement,
                         MeterUsed = (short)MeterUsed,
                         VtriggerRequirement = (short)VtriggerRequirement,
                         VtriggerUsed = (short)VtriggerUsed,
@@ -304,7 +305,7 @@ namespace MoveLib.BCM
 
                     MoveList.Add(thisMove);
 
-                    Debug.WriteLine("MOVE: " + "Index: " + (i == 0 ? 0 : (i/4)) +
+                    Debug.WriteLine("MOVE: " + "Index: " + (i == 0 ? 0 : (i / 4)) +
                                     "\nName: " + Name +
                                     "\nOffset: " + offset.ToString("X") +
                                     "\nNameOffet: " + NameAddress.ToString("X") +
@@ -329,7 +330,7 @@ namespace MoveLib.BCM
                                     + "\nUnknown16: " + Unknown16
                                     + "\nInputMotionIndex: " + InputMotionIndex
                                     + "\nScriptIndex: " + ScriptIndex
-                                    +"\nUnknown17: " + thisMove.Unknown17
+                                    + "\nUnknown17: " + thisMove.Unknown17
                                     + "\nUnknown18: " + thisMove.Unknown18
                                     + "\nUnknown19: " + thisMove.Unknown19
                                     + "\nUnknown20: " + thisMove.Unknown20
@@ -371,7 +372,7 @@ namespace MoveLib.BCM
                     int LastIndex = inFile.ReadInt32(); //last move index in list -1...
                     int StartOffset = inFile.ReadInt32(); //offset until real list FROM START OF CANCEL!!!
                     int StartOfCancelInts = inFile.ReadInt32();
-                    int StartOfCancelBytes = inFile.ReadInt32(); 
+                    int StartOfCancelBytes = inFile.ReadInt32();
 
                     Debug.WriteLine("ThisCancelAddress: " + thisAddress.ToString("X"));
                     Debug.WriteLine($"Cancel {i}:\nCU1: {thisCancelList.Unknown1}\nMovesInList: {MovesInList}\nNumberOfSomethingInList: {LastIndex}\nStartOffset: {StartOffset.ToString("X")}\nCU5: {StartOfCancelInts.ToString("X")}\nEndOffset: {StartOfCancelBytes.ToString("X")}\n");
@@ -450,7 +451,7 @@ namespace MoveLib.BCM
                             continue;
                         }
 
-                        Debug.WriteLine("SomethingElseInCancelList(offsets?): " + offset.ToString("X") + " Pos: " + (inFile.BaseStream.Position - 4).ToString("X") + " - Index: " + j + "  added offset:" + (offset+thisAddress).ToString("X"));
+                        Debug.WriteLine("SomethingElseInCancelList(offsets?): " + offset.ToString("X") + " Pos: " + (inFile.BaseStream.Position - 4).ToString("X") + " - Index: " + j + "  added offset:" + (offset + thisAddress).ToString("X"));
 
                         var address = offset + thisAddress;
 
@@ -459,7 +460,7 @@ namespace MoveLib.BCM
                         var cancelBytesBelongsTo = thisCancelList.Cancels.First(x => x.Index == j);
 
                         var unkBytes = inFile.ReadBytes(0x24);
-                        
+
                         cancelBytesBelongsTo.UnknownBytes = unkBytes;
                     }
 
@@ -486,7 +487,7 @@ namespace MoveLib.BCM
                             }
 
                             Debug.WriteLine("Cancel: " + cancel.Index + " ScriptIndex:" + cancel.ScriptIndex);
-                            
+
                             foreach (var unknownByte in cancel.UnknownBytes)
                             {
                                 Debug.Write(unknownByte.ToString("X") + " ");
@@ -531,7 +532,7 @@ namespace MoveLib.BCM
 
             Debug.WriteLine("Done");
 
-            BCMFile bcm = new BCMFile()
+            BCMObject bcm = new BCMObject()
             {
                 Inputs = InputList.ToArray(),
                 CancelLists = CancelLists.ToArray(),
@@ -551,7 +552,7 @@ namespace MoveLib.BCM
             outFile.BaseStream.Seek(oldPosition, SeekOrigin.Begin);
         }
 
-        public static void ToUassetFile(BCMFile file, string fileName)
+        public static void ToUassetFile(BCMObject file, string fileName)
         {
             byte[] outPutFileBytes;
 
@@ -566,10 +567,10 @@ namespace MoveLib.BCM
 
                     outFile.Write(headerBytes);
 
-                    outFile.Write((short) file.Charges.Length);
-                    outFile.Write((short) file.Inputs.Length);
-                    outFile.Write((short) file.Moves.Length);
-                    outFile.Write((short) file.CancelLists.Length);
+                    outFile.Write((short)file.Charges.Length);
+                    outFile.Write((short)file.Inputs.Length);
+                    outFile.Write((short)file.Moves.Length);
+                    outFile.Write((short)file.CancelLists.Length);
 
                     var StartOfStartOfChargeOffsets = outFile.BaseStream.Position;
                     outFile.Write(0);
@@ -591,7 +592,7 @@ namespace MoveLib.BCM
                     var StartOfChargeOffsets = outFile.BaseStream.Position;
                     if (file.Charges.Length > 0)
                     {
-                        WriteInt32ToPosition(outFile, StartOfStartOfChargeOffsets, (int) outFile.BaseStream.Position);
+                        WriteInt32ToPosition(outFile, StartOfStartOfChargeOffsets, (int)outFile.BaseStream.Position);
                     }
                     for (int i = 0; i < file.Charges.Length; i++)
                     {
@@ -642,7 +643,7 @@ namespace MoveLib.BCM
 
                     for (int i = 0; i < file.Charges.Length; i++)
                     {
-                        WriteInt32ToPosition(outFile, StartOfChargeOffsets + (i*4), (int)outFile.BaseStream.Position);
+                        WriteInt32ToPosition(outFile, StartOfChargeOffsets + (i * 4), (int)outFile.BaseStream.Position);
 
                         outFile.Write(file.Charges[i].ChargeDirection);
                         outFile.Write(file.Charges[i].Unknown1);
@@ -673,7 +674,7 @@ namespace MoveLib.BCM
                                 continue;
                             }
 
-                            WriteInt32ToPosition(outFile, entryOffsetPosition + (j*4), (int)(outFile.BaseStream.Position- entryOffsetPosition));
+                            WriteInt32ToPosition(outFile, entryOffsetPosition + (j * 4), (int)(outFile.BaseStream.Position - entryOffsetPosition));
 
                             outFile.Write(file.Inputs[i].InputEntries[j].InputParts.Length);
 
@@ -703,8 +704,8 @@ namespace MoveLib.BCM
 
                     for (int i = 0; i < file.Moves.Length; i++)
                     {
-                        WriteInt32ToPosition(outFile,StartOfMoveOffsets + (i*4), (int)outFile.BaseStream.Position);
-                    
+                        WriteInt32ToPosition(outFile, StartOfMoveOffsets + (i * 4), (int)outFile.BaseStream.Position);
+
                         outFile.Write(file.Moves[i].Input);
                         outFile.Write(file.Moves[i].InputFlags);
                         outFile.Write(file.Moves[i].PositionRestriction);
@@ -755,13 +756,13 @@ namespace MoveLib.BCM
                         StartOfCancelListsList.Add(outFile.BaseStream.Position);
                         if (file.CancelLists[i].Cancels == null)
                         {
-                            WriteInt32ToPosition(outFile, StartOfCancelListOffsets + (i*4), 0);
+                            WriteInt32ToPosition(outFile, StartOfCancelListOffsets + (i * 4), 0);
                             CancelListOffsets.Add(-1);
                             continue;
                         }
 
-                        WriteInt32ToPosition(outFile, StartOfCancelListOffsets + (i*4),
-                            (int) outFile.BaseStream.Position);
+                        WriteInt32ToPosition(outFile, StartOfCancelListOffsets + (i * 4),
+                            (int)outFile.BaseStream.Position);
 
                         outFile.Write(file.CancelLists[i].Unknown1);
                         outFile.Write(file.CancelLists[i].Cancels.Length);
@@ -792,7 +793,7 @@ namespace MoveLib.BCM
                             outFile.Write(file.CancelLists[i].Cancels[j].Index);
                         }
 
-                        if (file.CancelLists[i].Cancels.Length%2 != 0)
+                        if (file.CancelLists[i].Cancels.Length % 2 != 0)
                         {
                             Debug.WriteLine("Writing empty move: " + outFile.BaseStream.Position.ToString("X"));
                             outFile.Write((short)0);
@@ -816,7 +817,7 @@ namespace MoveLib.BCM
                             if (CancelListOffsets[i] != -1)
                             {
                                 WriteInt32ToPosition(outFile, CancelListOffsets[i] + 4,
-                                    (int) (CancelIntsPosition - StartOfCancelListsList[i]));
+                                    (int)(CancelIntsPosition - StartOfCancelListsList[i]));
                             }
                         }
 
@@ -824,7 +825,7 @@ namespace MoveLib.BCM
 
                         if (CancelListOffsets[i] != -1)
                         {
-                            WriteInt32ToPosition(outFile, CancelListOffsets[i]+8, (int)(outFile.BaseStream.Position - StartOfCancelListsList[i]));
+                            WriteInt32ToPosition(outFile, CancelListOffsets[i] + 8, (int)(outFile.BaseStream.Position - StartOfCancelListsList[i]));
                         }
 
                         var numberOfOffsets =
@@ -841,17 +842,17 @@ namespace MoveLib.BCM
                         {
                             if (file.CancelLists[i].Cancels[j].UnknownBytes != null)
                             {
-                                WriteInt32ToPosition(outFile, UnknownBytesOffsetPosition  + (file.CancelLists[i].Cancels[j].Index*4), (int)(outFile.BaseStream.Position- StartOfCancelListsList[i]));
+                                WriteInt32ToPosition(outFile, UnknownBytesOffsetPosition + (file.CancelLists[i].Cancels[j].Index * 4), (int)(outFile.BaseStream.Position - StartOfCancelListsList[i]));
                                 outFile.Write(file.CancelLists[i].Cancels[j].UnknownBytes);
                             }
                         }
                     }
-                    
+
                     Debug.WriteLine("Done writing Cancels, now at: " + outFile.BaseStream.Position.ToString("X"));
 
                     for (int i = 0; i < file.Moves.Length; i++)
                     {
-                        WriteInt32ToPosition(outFile, StartOfNameOffsets + (i*4), (int)outFile.BaseStream.Position);
+                        WriteInt32ToPosition(outFile, StartOfNameOffsets + (i * 4), (int)outFile.BaseStream.Position);
 
                         outFile.Write(file.Moves[i].Name.ToCharArray());
                         outFile.Write((byte)0x00);
@@ -871,7 +872,7 @@ namespace MoveLib.BCM
             outPut.InsertRange(0, new byte[]
             {
                 0x00, 0x00, 0x00, 0x00,
-                0x05, 0x00, 0x00, 0x00, 
+                0x05, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00
             });
 
@@ -879,9 +880,9 @@ namespace MoveLib.BCM
 
             outPut.InsertRange(0, new byte[]
             {
-                0x07, 0x00, 0x00, 0x00, 
-                0x00, 0x00, 0x00, 0x00, 
-                0x03, 0x00, 0x00, 0x00, 
+                0x07, 0x00, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00,
+                0x03, 0x00, 0x00, 0x00,
                 0x00, 0x00, 0x00, 0x00
             });
 
@@ -894,7 +895,7 @@ namespace MoveLib.BCM
 
         private static void WriteInputToDebug(Input input)
         {
-            foreach (var entry  in input.InputEntries)
+            foreach (var entry in input.InputEntries)
             {
                 if (entry == null)
                 {
@@ -939,145 +940,5 @@ namespace MoveLib.BCM
 
             return sb.ToString();
         }
-    }
-
-    public class BCMFile
-    {
-        public Charge[] Charges { get; set; }
-        public Input[] Inputs { get; set; }
-        public Move[] Moves { get; set; }
-        public CancelList[] CancelLists { get; set; }
-        public byte[] RawUassetHeaderDontTouch { get; set; }
-    }
-
-    public class CancelList
-    {
-        public int Index { get; set; }
-        public int Unknown1 { get; set; }
-        public Cancel[] Cancels { get; set; }
-    }
-
-    public class Cancel
-    {
-        public string Name { get; set; }
-        public short Index { get; set; }
-        public int ScriptIndex { get; set; }
-        public CancelInts CancelInts { get; set; }
-        public byte[] UnknownBytes { get; set; }
-    }
-
-    public class CancelInts
-    {
-        public int Unknown1 { get; set; }
-        public int Unknown2 { get; set; }
-    }
-
-    public class Move
-    {
-        public byte Offset { get; set; }
-        public short Index { get; set; }
-        public string Name { get; set; }
-        public short Input { get; set; }
-        public short InputFlags { get; set; }
-        public int PositionRestriction { get; set; }
-        public int Unknown3 { get; set; }
-        public float RestrictionDistance { get; set; }
-        public int Unknown4 { get; set; }
-        // CHANGED: ProjectileLimit split into 2 parts
-        public short ProjectileGroup { get; set; }
-        public short ProjectileMaxCount { get; set; }
-
-        private int ProjectileLimit
-        {
-            set
-            {
-                ProjectileGroup = (short)(value & 0x00FF >> 0);
-                ProjectileMaxCount = (short)(value & 0xFF00 >> 8);
-            }
-        }
-
-        // ---
-        public short Unknown6 { get; set; }
-        public short Unknown7 { get; set; }
-        public short Unknown8 { get; set; }
-        public short Unknown9 { get; set; }
-        public short MeterRequirement { get; set; }
-        public short MeterUsed { get; set; }
-        public short Unknown10 { get; set; }
-        public short Unknown11 { get; set; }
-        public short VtriggerRequirement { get; set; }
-        public short VtriggerUsed { get; set; }
-        public int Unknown16 { get; set; }
-        public short InputMotionIndex { get; set; }
-        public short ScriptIndex { get; set; }
-
-        public int Unknown17 { get; set; }
-        public int Unknown18 { get; set; }
-        public int Unknown19 { get; set; }
-        public float Unknown20 { get; set; }
-        public float Unknown21 { get; set; }
-
-        public int Unknown22 { get; set; }
-        public int Unknown23 { get; set; }
-        public int Unknown24 { get; set; }
-        public int Unknown25 { get; set; }
-
-        public short Unknown26 { get; set; }
-        public short NormalOrVtrigger { get; set; }
-
-        public int Unknown28 { get; set; }
-    }
-
-    public class Charge
-    {
-       public int Index { get; set; }
-       public short ChargeDirection { get; set; }
-       public short ChargeFrames { get; set; }
-       public short Unknown1 { get; set; }
-       public short Unknown2 { get; set; }
-       public short Unknown3 { get; set; }
-       public short Flags { get; set; }
-       public short ChargeIndex { get; set; }
-       public short Unknown4 { get; set; }
-    }
-
-    public class Input
-    {
-        public int Index { get; set; }
-        public InputEntry[] InputEntries { get; set; }
-        public string Name { get; set; }
-    }
-    
-    public class InputEntry
-    {
-        public InputPart[] InputParts { get; set; } 
-    }
-
-    public class InputPart
-    {
-        public short Buffer { get; set; }
-        public InputType InputType { get; set; }
-        public InputDirection InputDirection { get; set; }
-        public short Unknown1 { get; set; }
-        public short Unknown2 { get; set; }
-        public short Unknown3 { get; set; }
-        public short Unknown4 { get; set; }
-        public short Unknown5 { get; set; }
-    }
-
-    public enum InputType
-    {
-        Normal = 0,
-        Charge = 1
-    }
-
-    [Flags]
-    public enum InputDirection
-    {
-        Neutral = 0, //???
-        Up = 1,
-        Down = 2,
-        Back = 4,
-        Forward = 8,
     }
 }
