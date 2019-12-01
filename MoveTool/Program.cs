@@ -63,7 +63,7 @@ namespace MoveTool
                                 Console.WriteLine("BAC file detected. Trying to do BAC to JSON.");
                                 try
                                 {
-                                    BAC.BacToJson(path, directory + fileNameWithoutExtension + ".json");
+                                    BACConverter.BacToJson(path, directory + fileNameWithoutExtension + ".json");
 
                                     Console.WriteLine("Done writing file: " + 
                                                       directory + fileNameWithoutExtension + ".json");
@@ -124,7 +124,7 @@ namespace MoveTool
                     {
                         Console.WriteLine("File is json.");
 
-                        var success = BAC.JsonToBac(
+                        var success = BACConverter.JsonToBac(
                             args[0],
                             Path.GetDirectoryName(args[0]) + Separator +
                             Path.GetFileNameWithoutExtension(args[0]) + ".uasset");
@@ -178,7 +178,7 @@ namespace MoveTool
                         {
                             case FileType.BAC:
                                 Console.WriteLine("BAC file detected. Trying to do BAC to JSON.");
-                                BAC.BacToJson(inFile, outFile);
+                                BACConverter.BacToJson(inFile, outFile);
                                 Console.WriteLine("Done writing file: " + outFile);
                                 break;
 
@@ -209,7 +209,7 @@ namespace MoveTool
 
                         Console.WriteLine("File is json.");
 
-                        var success = BAC.JsonToBac(inFile, outFile);
+                        var success = BACConverter.JsonToBac(inFile, outFile);
 
                         if (!success)
                         {

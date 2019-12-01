@@ -25,7 +25,7 @@ namespace UnitTest
 
             try
             {
-                var isBacSuccessful = BAC.JsonToBac(filePath, "fileOutput (unused in test)");
+                var isBacSuccessful = BACConverter.JsonToBac(filePath, "fileOutput (unused in test)");
 
                 Assert.IsTrue(isBacSuccessful);
             }
@@ -49,8 +49,8 @@ namespace UnitTest
             foreach (var file in Directory.GetFiles(@"Originals", @"BAC_???.uasset"))
             {
                 var originalBytes = File.ReadAllBytes(file);
-                var bac = BAC.FromUassetFile(file);
-                BAC.ToUassetFile(bac, @"Originals\BAC\testfile.uasset");
+                var bac = BACConverter.FromUassetFile(file);
+                BACConverter.ToUassetFile(bac, @"Originals\BAC\testfile.uasset");
                 var createdBytes = File.ReadAllBytes(@"Originals\BAC\testfile.uasset");
                 bool isCorrectLength = true;
 
@@ -100,8 +100,8 @@ namespace UnitTest
             foreach (var file in Directory.GetFiles(@"Originals", @"BAC_???_eff.uasset"))
             {
                 var originalBytes = File.ReadAllBytes(file);
-                var bac = BAC.FromUassetFile(file);
-                BAC.ToUassetFile(bac, @"Originals\BACeff\testfile.uasset");
+                var bac = BACConverter.FromUassetFile(file);
+                BACConverter.ToUassetFile(bac, @"Originals\BACeff\testfile.uasset");
                 var createdBytes = File.ReadAllBytes(@"Originals\BACeff\testfile.uasset");
 
                 Assert.AreEqual(originalBytes.Length, createdBytes.Length);

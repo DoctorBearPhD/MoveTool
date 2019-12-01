@@ -42,7 +42,7 @@ namespace MoveLib
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return FileType.Unknown;
             }

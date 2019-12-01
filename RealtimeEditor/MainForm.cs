@@ -328,7 +328,7 @@ namespace RealtimeEditor
             if (!MemoryFileList.Exists(m => m.JsonFilePath == fileName)) return;
 
             var tempFileName = "temp_" + Path.GetFileName(fileName);
-            var success = BAC.JsonToBac(fileName, tempFileName);
+            var success = BACConverter.JsonToBac(fileName, tempFileName);
 
             if (!success)
             {

@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591,</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>1591,</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -43,7 +45,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BAC.cs" />
+    <Compile Include="BAC\Types\Animation.cs" />
+    <Compile Include="BAC\Types\Enums\AnimationEnum.cs" />
+    <Compile Include="BAC\Types\Cancel.cs" />
+    <Compile Include="BAC\Types\AutoCancel.cs" />
+    <Compile Include="BAC\Types\Enums\AutoCancelCondition.cs" />
+    <Compile Include="BAC\BACConverter.cs" />
+    <Compile Include="BAC\BACObject.cs" />
+    <Compile Include="BAC\Types\Force.cs" />
+    <Compile Include="BAC\Types\Enums\ForceEnum.cs" />
+    <Compile Include="BAC\HBFX\HitboxEffect.cs" />
+    <Compile Include="BAC\HBFX\HitboxEffects.cs" />
+    <Compile Include="BAC\HBFX\HitboxEffectSoundEffect.cs" />
+    <Compile Include="BAC\HBFX\HitboxEffectVisualEffect.cs" />
+    <Compile Include="BAC\Move.cs" />
+    <Compile Include="BAC\MoveList.cs" />
+    <Compile Include="BAC\Types\Hitbox.cs" />
+    <Compile Include="BAC\Types\Hurtbox.cs" />
+    <Compile Include="BAC\Types\Other.cs" />
+    <Compile Include="BAC\Types\PhysicsBox.cs" />
+    <Compile Include="BAC\Types\Position.cs" />
+    <Compile Include="BAC\Types\SoundEffect.cs" />
+    <Compile Include="BAC\Types\Type1.cs" />
+    <Compile Include="BAC\Types\Type9.cs" />
+    <Compile Include="BAC\Types\TypeInfo.cs" />
+    <Compile Include="BAC\Types\VisualEffect.cs" />
+    <Compile Include="Util\ForceEnumConverter.cs" />
     <Compile Include="BCH.cs" />
     <Compile Include="BCM.cs" />
     <Compile Include="Common.cs" />
