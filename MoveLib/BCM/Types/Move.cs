@@ -25,21 +25,21 @@
         }
 
         // ---
-        public short Unknown6 { get; set; }
+        public short Unknown6 { get; set; } // 2 parts: Move Category / Move Property
         public short Unknown7 { get; set; }
-        public short Unknown8 { get; set; }
+        public short Unknown8 { get; set; } // for stance-locked moves (Zeku/Necalli). 1 is default
         public short Unknown9 { get; set; }
         public short MeterRequirement { get; set; }
         public short MeterUsed { get; set; }
         public short Unknown10 { get; set; }
         public short Unknown11 { get; set; }
         public short VtriggerRequirement { get; set; }
-        public short VtriggerUsed { get; set; }
-        public int Unknown16 { get; set; }
+        public short VtriggerUsed { get; set; } // V-Meter used while NOT in V-Trigger
+        public int Unknown16 { get; set; }      // V-Meter used while in V-Trigger
         public short InputMotionIndex { get; set; }
         public short ScriptIndex { get; set; }
 
-        public int Unknown17 { get; set; }
+        public int Unknown17 { get; set; }  // Trial Skill ID (skill ID for Trial mode)
         public int Unknown18 { get; set; }
         public int Unknown19 { get; set; }
         public float Unknown20 { get; set; }

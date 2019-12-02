@@ -3,7 +3,7 @@
     public class Charge
     {
        public int Index { get; set; }
-       public short ChargeDirection { get; set; }
+       public InputFlags ChargeDirection { get; set; }
        public short ChargeFrames { get; set; }
        public short Unknown1 { get; set; }
        public short Unknown2 { get; set; }

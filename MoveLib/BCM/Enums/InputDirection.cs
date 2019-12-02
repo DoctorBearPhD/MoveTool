@@ -2,7 +2,7 @@
 namespace MoveLib.BCM.Types
 {
     [Flags]
-    public enum InputDirection
+    public enum InputFlags
     {
         Neutral = 0, //???
         Up = 1,

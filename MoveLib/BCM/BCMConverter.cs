@@ -186,7 +186,7 @@ namespace MoveLib.BCM
                             {
                                 InputType = (InputType)inFile.ReadInt16(),
                                 Buffer = inFile.ReadInt16(),
-                                InputDirection = (InputDirection)inFile.ReadInt16(),
+                                InputDirection = (InputFlags)inFile.ReadInt16(),
                                 Unknown1 = inFile.ReadInt16(),
                                 Unknown2 = inFile.ReadInt16(),
                                 Unknown3 = inFile.ReadInt16(),
