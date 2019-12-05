@@ -1,10 +1,12 @@
-﻿namespace MoveLib.BCM.Types
+﻿using MoveLib.BCM.Enums;
+
+namespace MoveLib.BCM.Types
 {
     public class InputPart
     {
         public short Buffer { get; set; }
         public InputType InputType { get; set; }
-        public InputFlags InputDirection { get; set; }
+        public DirectionFlags InputDirection { get; set; }
         public short Unknown1 { get; set; }
         public short Unknown2 { get; set; }
         public short Unknown3 { get; set; }

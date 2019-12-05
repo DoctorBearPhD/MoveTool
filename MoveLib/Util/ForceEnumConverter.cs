@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using MoveLib.BAC;
+using MoveLib.BAC.Enums;
 using MoveLib.BAC.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

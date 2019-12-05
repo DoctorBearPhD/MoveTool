@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MoveLib")]
-[assembly: AssemblyCopyright("Copyright ©  2016 Raymond (Lullius) Olsen")]
+[assembly: AssemblyCopyright("Copyright ©  2019 Raymond (Lullius) Olsen and Ian (DoctorBearPhD) Hunt")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -1,4 +1,6 @@
-﻿namespace MoveLib.BCM.Types
+﻿using MoveLib.BCM.Enums;
+
+namespace MoveLib.BCM.Types
 {
     public class Move
     {
@@ -6,7 +8,7 @@
         public short Index { get; set; }
         public string Name { get; set; }
         public short Input { get; set; }
-        public short InputFlags { get; set; }
+        public InputPropertiesFlags InputFlags { get; set; }
         public int PositionRestriction { get; set; }
         public int Unknown3 { get; set; }
         public float RestrictionDistance { get; set; }

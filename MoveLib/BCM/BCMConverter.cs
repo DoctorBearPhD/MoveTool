@@ -4,8 +4,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoveLib.BCM.Enums;
 using MoveLib.BCM.Types;
+using MoveLib.Util;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace MoveLib.BCM
 {
@@ -25,9 +28,7 @@ namespace MoveLib.BCM
                 throw;
             }
 
-            Formatting format = Formatting.Indented;
-
-            var json = JsonConvert.SerializeObject(bcm, format, new Newtonsoft.Json.Converters.StringEnumConverter());
+            var json = JsonConvert.SerializeObject(bcm, Formatting.Indented, new StringEnumConverter());
 
             File.WriteAllText(outFile, json);
         }
@@ -38,7 +39,7 @@ namespace MoveLib.BCM
 
             try
             {
-                bcm = JsonConvert.DeserializeObject<BCMObject>(File.ReadAllText(inFile));
+                bcm = JsonConvert.DeserializeObject<BCMObject>(File.ReadAllText(inFile), new MoveLibEnumConverter(), new StringEnumConverter());
             }
             catch (Exception ex)
             {
@@ -128,7 +129,7 @@ namespace MoveLib.BCM
                     inFile.BaseStream.Seek(thisChargeAddress, SeekOrigin.Begin);
                     Debug.WriteLine("ChargeAddress: " + thisChargeAddress.ToString("X"));
 
-                    thisCharge.ChargeDirection = inFile.ReadInt16();
+                    thisCharge.ChargeDirection = (DirectionFlags)inFile.ReadInt16();
                     thisCharge.Unknown1 = inFile.ReadInt16();
                     thisCharge.Unknown2 = inFile.ReadInt16();
                     thisCharge.Unknown3 = inFile.ReadInt16();
@@ -186,7 +187,7 @@ namespace MoveLib.BCM
                             {
                                 InputType = (InputType)inFile.ReadInt16(),
                                 Buffer = inFile.ReadInt16(),
-                                InputDirection = (InputFlags)inFile.ReadInt16(),
+                                InputDirection = (DirectionFlags)inFile.ReadInt16(),
                                 Unknown1 = inFile.ReadInt16(),
                                 Unknown2 = inFile.ReadInt16(),
                                 Unknown3 = inFile.ReadInt16(),
@@ -264,7 +265,7 @@ namespace MoveLib.BCM
                         Name = Name,
                         Index = (short)(i == 0 ? 0 : (i / 4)),
                         Input = input,
-                        InputFlags = inputFlags,
+                        InputFlags = (InputPropertiesFlags)inputFlags,
                         PositionRestriction = restrict,
                         Unknown3 = restrict2,
                         RestrictionDistance = restrictDistance,
@@ -645,7 +646,7 @@ namespace MoveLib.BCM
                     {
                         WriteInt32ToPosition(outFile, StartOfChargeOffsets + (i * 4), (int)outFile.BaseStream.Position);
 
-                        outFile.Write(file.Charges[i].ChargeDirection);
+                        outFile.Write((short)file.Charges[i].ChargeDirection);
                         outFile.Write(file.Charges[i].Unknown1);
                         outFile.Write(file.Charges[i].Unknown2);
                         outFile.Write(file.Charges[i].Unknown3);
@@ -707,7 +708,7 @@ namespace MoveLib.BCM
                         WriteInt32ToPosition(outFile, StartOfMoveOffsets + (i * 4), (int)outFile.BaseStream.Position);
 
                         outFile.Write(file.Moves[i].Input);
-                        outFile.Write(file.Moves[i].InputFlags);
+                        outFile.Write((short)file.Moves[i].InputFlags);
                         outFile.Write(file.Moves[i].PositionRestriction);
                         outFile.Write(file.Moves[i].Unknown3);
                         outFile.Write(file.Moves[i].RestrictionDistance);

@@ -1,4 +1,4 @@
-﻿namespace MoveLib.BAC.Types
+﻿namespace MoveLib.BAC.Enums
 {
     public enum ForceEnum
     {

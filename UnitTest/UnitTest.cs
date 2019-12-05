@@ -1,23 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MoveLib;
 using MoveLib.BAC;
+using MoveLib.BAC.Types;
 using MoveLib.BCH;
 using MoveLib.BCM;
-
-
+using MoveLib.Util;
+using Newtonsoft.Json;
 
 namespace UnitTest
 {
     [TestClass]
     public class UnitTest
     {
-        /*
-        To use these tests you will need to put some, or all, the 
-        BAC/BCM/BCH (uasset) files in the correct folder (UnitTest/Bin/Debug/Originals/...)
-        */
+        public const string BAC_NAME            = "BAC_NCL.uasset";
+        public const string ORIGINAL_BAC_PATH   = @"Originals\BAC\" + BAC_NAME;
+        public const string CONVERTED_BAC_PATH  = @"Converted\BAC\" + BAC_NAME;
+
 
         [TestMethod]
         public void OldModifiedBACJson_ShouldReadOldNames()
@@ -35,6 +37,57 @@ namespace UnitTest
                 Debug.WriteLine("Caught exception:\n" + e.Message);
             }
         }
+
+        /// <summary>
+        /// The result of converting a BAC to JSON to BAC should be identical to the original BAC.
+        /// </summary>
+        [TestMethod]
+        public void UnmodifiedBAC_ShouldNotDifferFromOriginal()
+        {
+            // verify that the files are in the right place for the test to proceed correctly
+            Assert.IsTrue(File.Exists(ORIGINAL_BAC_PATH));
+
+
+            /* Given */
+
+            var originalFileBytes = File.ReadAllBytes(ORIGINAL_BAC_PATH);
+
+
+
+            /* When */
+            var convertedBac = BACConverter.FromUassetFile(ORIGINAL_BAC_PATH);
+            BACConverter.ToUassetFile(convertedBac, CONVERTED_BAC_PATH);
+
+            /* Then */
+            var convertedFileBytes = File.ReadAllBytes(CONVERTED_BAC_PATH);
+            Assert.IsTrue(Enumerable.SequenceEqual(originalFileBytes, convertedFileBytes));
+        }
+        
+        [TestMethod]
+        public void NegativeZeros_ShouldRetainSign()
+        {
+            // given
+            //var originalFileBytes = File.ReadAllBytes(ORIGINAL_BAC_PATH);
+            //var convertedBac = BACConverter.FromUassetFile(ORIGINAL_BAC_PATH);
+            var hurtbox = new Hurtbox
+            {
+                Y = -0.0f
+            };
+
+            Assert.IsTrue(1 / hurtbox.Y < 0); // check that it's actually -0  (1/-0 = -infinity, 1/0=infinity)
+
+            // when
+            var json = JsonConvert.SerializeObject(hurtbox);
+            var convertedHurtbox = JsonConvert.DeserializeObject<Hurtbox>(json, new NegativeZeroConverter());
+
+            // then
+            Assert.IsTrue(1 / convertedHurtbox.Y < 0);
+        }
+
+        /*
+        To use these tests you will need to put some, or all, the 
+        BAC/BCM/BCH (uasset) files in the correct folder (UnitTest/Bin/Debug/Originals/...)
+        */
 
         [TestMethod]
         public void TestBAC()

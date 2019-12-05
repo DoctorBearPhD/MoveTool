@@ -73,20 +73,24 @@
     <Compile Include="BCH\BCHConverter.cs" />
     <Compile Include="BCM\BCMConverter.cs" />
     <Compile Include="BCM\BCMObject.cs" />
+    <Compile Include="BCM\Enums\DirectionFlags.cs" />
+    <Compile Include="BCM\Enums\InputPropertiesFlags.cs" />
     <Compile Include="BCM\Types\Cancel.cs" />
     <Compile Include="BCM\Types\CancelInts.cs" />
     <Compile Include="BCM\Types\CancelList.cs" />
     <Compile Include="BCM\Types\Charge.cs" />
     <Compile Include="BCM\Types\Input.cs" />
-    <Compile Include="BCM\Enums\InputDirection.cs" />
     <Compile Include="BCM\Types\InputEntry.cs" />
     <Compile Include="BCM\Types\InputPart.cs" />
     <Compile Include="BCM\Enums\InputType.cs" />
     <Compile Include="BCM\Types\Move.cs" />
+    <Compile Include="Util\AnimationEnumConverter.cs" />
     <Compile Include="Util\ForceEnumConverter.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileTypeDecider.cs" />
+    <Compile Include="Util\MoveLibEnumConverter.cs" />
+    <Compile Include="Util\NegativeZeroConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

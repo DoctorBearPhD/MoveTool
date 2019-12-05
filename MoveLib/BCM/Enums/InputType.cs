@@ -1,4 +1,4 @@
-﻿namespace MoveLib.BCM.Types
+﻿namespace MoveLib.BCM.Enums
 {
     public enum InputType
     {

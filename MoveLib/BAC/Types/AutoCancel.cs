@@ -1,4 +1,6 @@
-﻿namespace MoveLib.BAC.Types
+﻿using MoveLib.BAC.Enums;
+
+namespace MoveLib.BAC.Types
 {
     public class AutoCancel
     {

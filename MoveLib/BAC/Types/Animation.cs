@@ -1,4 +1,6 @@
-﻿namespace MoveLib.BAC.Types
+﻿using MoveLib.BAC.Enums;
+
+namespace MoveLib.BAC.Types
 {
     public class Animation
     {
@@ -10,6 +12,7 @@
         public int BACVERint4 { get; set; }
 
         public short Index { get; set; }
+        [Newtonsoft.Json.JsonConverter(typeof(Util.MoveLibEnumConverter))]
         public AnimationEnum Type { get; set; }
         public short FrameStart { get; set; }
         public short FrameEnd { get; set; }
